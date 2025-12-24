@@ -52,13 +52,13 @@ def generate_on_conflict(
     :return: Строка с описанием действия.
     """
     CONFLICT_OPTIONS = ("nothing", "update")
-    if not keys:
+    if not keys and on_conflict_option == "update":
         raise ValueError("Keys are required")
-    if not on_conflict_option in CONFLICT_OPTIONS:
-        raise ValueError(f"on_conflict_option must be one of {CONFLICT_OPTIONS}")
     if not attributes and on_conflict_option == "update":
         raise ValueError("Attributes are required for update")
-    on_conflict = f"ON CONFLICT ({', '.join(keys)})) "
+    if not on_conflict_option in CONFLICT_OPTIONS:
+        raise ValueError(f"on_conflict_option must be one of {CONFLICT_OPTIONS}")
+    on_conflict = f"ON CONFLICT ({', '.join(keys)}) "
     if on_conflict_option == "nothing":
         option = "DO NOTHING "
         set_ = ""
