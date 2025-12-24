@@ -1,6 +1,6 @@
 import logging
 
-from dags.utils.utils_koronapay_api import KoronaPayApi
+from utils.utils_koronapay_api import KoronaPayApi
 
 # Конфигурация логирования
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
