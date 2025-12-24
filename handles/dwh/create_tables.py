@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     # Запрос на создание таблицы с валютами
     query_for_currency_table = """
-        CREATE TABLE md.currencies (
+        CREATE TABLE IF NOT EXISTS md.currencies (
             id INT PRIMARY KEY,
             code TEXT NOT NULL,
             name TEXT NOT NULL
@@ -49,6 +49,7 @@ if __name__ == "__main__":
         );
     """
 
+    # Создание таблицы с валютами
     execute_custom_query(
         db_name=pg_credentials["db_name"],
         port=pg_credentials["port"],
@@ -58,6 +59,7 @@ if __name__ == "__main__":
         query = query_for_currency_table
     )
 
+    # Создание таблицы с курсами в raw
     execute_custom_query(
         db_name=pg_credentials["db_name"],
         port=pg_credentials["port"],
@@ -67,20 +69,22 @@ if __name__ == "__main__":
         query = query_for_raw_rates_table
     )
 
+    # Создание таблицы с курсами в raw
     execute_custom_query(
         db_name=pg_credentials["db_name"],
         port=pg_credentials["port"],
         host=pg_credentials["host"],
         user=pg_credentials["user"],
         password=pg_credentials["password"],
-        query = query_for_raw_rates_table
+        query = query_for_ods_rates_table
     )
 
+    # Создание таблицы с курсами в raw
     execute_custom_query(
         db_name=pg_credentials["db_name"],
         port=pg_credentials["port"],
         host=pg_credentials["host"],
         user=pg_credentials["user"],
         password=pg_credentials["password"],
-        query = query_for_raw_rates_table
+        query = query_for_dds_rates_table
     )
