@@ -30,7 +30,7 @@ if __name__ == "__main__":
         CREATE TABLE IF NOT EXISTS ods.korona_transfer_rates (
             sending_currency_id INT NOT NULL REFERENCES md.currencies(id),
             receiving_currency_id INT NOT NULL REFERENCES md.currencies(id),
-            load_ts timestamp NOT NULL,
+            load_ts timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             exchange_rate NUMERIC(18, 6) NOT NULL,
             PRIMARY KEY (sending_currency_id, receiving_currency_id)
         );
