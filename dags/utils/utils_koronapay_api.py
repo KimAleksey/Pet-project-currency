@@ -242,7 +242,7 @@ class KoronaPayApi:
         url = self.get_api_url()
         logging.info(f"Выполнение GET запроса для URL: {url}")
         try:
-            response = requests.get(url=url, headers=self._headers)
+            response = requests.get(url=url, headers=self._headers, timeout=600)
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"Ошибка подключения к API. {e}")
 
