@@ -44,8 +44,7 @@ def load_rates_to_dds(**context):
         FROM ods.korona_transfer_rates o
         WHERE d.sending_currency_id = o.sending_currency_id
           AND d.receiving_currency_id = o.receiving_currency_id
-          AND d.ts_to = TIMESTAMP '9999-12-31'
-          AND d.exchange_rate IS DISTINCT FROM o.exchange_rate;
+          AND d.ts_to = TIMESTAMP '9999-12-31';
         
         -- Вставляем новые версии
         INSERT INTO dds.korona_transfer_rates (
@@ -57,7 +56,7 @@ def load_rates_to_dds(**context):
         SELECT 
             o.sending_currency_id,
             o.receiving_currency_id,
-            o.load_ts,
+            o.load_ts  + INTERVAL '1 second',
             o.exchange_rate
         FROM ods.korona_transfer_rates o
         LEFT JOIN dds.korona_transfer_rates d

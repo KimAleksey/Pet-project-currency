@@ -50,8 +50,7 @@ def load_rates_to_ods(**context):
         DO UPDATE
         SET
             load_ts = NOW(),
-            exchange_rate = EXCLUDED.exchange_rate
-        WHERE ods.exchange_rate IS DISTINCT FROM EXCLUDED.exchange_rate;
+            exchange_rate = EXCLUDED.exchange_rate;
     """
     try:
         with pg_hook.get_conn() as conn:
