@@ -39,13 +39,19 @@ def load_rates_to_ods(**context):
     pg_hook = PostgresHook("my_dwh")
     insert_sql = """
         INSERT INTO ods.korona_transfer_rates AS ods
-        SELECT DISTINCT ON (sending_currency_id, receiving_currency_id)
+        SELECT
             sending_currency_id,
             receiving_currency_id,
             NOW() AS load_ts,
             exchange_rate
-        FROM raw.korona_transfer_rates
-        ORDER BY sending_currency_id, receiving_currency_id, load_ts DESC
+        FROM (
+            SELECT
+                *,
+                RANK() OVER(PARTITION BY sending_currency_id, receiving_currency_id 
+                            ORDER BY load_ts DESC) AS rn
+            FROM raw.korona_transfer_rates
+        ) AS t1
+        WHERE rn = 1
         ON CONFLICT (sending_currency_id, receiving_currency_id)
         DO UPDATE
         SET
