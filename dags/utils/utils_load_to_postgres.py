@@ -19,7 +19,7 @@ def generate_insert_sql(
         placeholders: str | None = None,
         keys: list[str] | None = None,
         attributes: list[str] | None = None,
-        on_conflict_option: str | None = "nothing"
+        on_conflict_option: str | None = None
 ):
     """
 
@@ -56,7 +56,7 @@ def save_dict_to_postgres(
         dict_row: dict[str, Any] | None = None,
         keys: list[str] | None = None,
         attributes: list[str] | None = None,
-        on_conflict_option: str | None = "nothing"
+        on_conflict_option: str | None = None
 ) -> None:
     """
     Функция для вставки одной строки в любую таблицу Postgres.

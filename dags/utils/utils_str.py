@@ -56,10 +56,12 @@ def generate_on_conflict(
         raise ValueError("Keys are required")
     if not attributes and on_conflict_option == "update":
         raise ValueError("Attributes are required for update")
+    if on_conflict_option is None:
+        return ""
     if not on_conflict_option in CONFLICT_OPTIONS:
-        raise ValueError(f"on_conflict_option must be one of {CONFLICT_OPTIONS}")
+        raise ValueError("On-conflict option must be 'nothing' or 'update'")
     on_conflict = f"ON CONFLICT ({', '.join(keys)}) "
-    if on_conflict_option == "nothing":
+    if on_conflict_option == "nothing" or on_conflict_option is None:
         option = "DO NOTHING "
         set_ = ""
     else:

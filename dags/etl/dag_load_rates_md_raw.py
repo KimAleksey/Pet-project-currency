@@ -53,27 +53,26 @@ def extract(**context) -> dict[Any, Any]:
     return result
 
 
-def transform(table: str):
+def transform(table: str, sending_flag: bool = True):
     def transform_dict(**context) -> dict[str, Any] | None:
         """
         Функция, которая забирает dict из xcom, сформированный ранее. И формирует новый xcom, который содержит
         dict с нужными полями и значениями для загрузки.
 
-        :param table: Таблица для загрузки
         :param context: context выполнения таски extract
         :return: Dict - строка для записи
         """
         ti = context.get("ti")
         api_data = ti.xcom_pull("extract")
         if table == "currencies":
-            data = transform_nested_fields_for_md_currency(api_data)
+            data = transform_nested_fields_for_md_currency(api_data, sending_flag)
         else:
             data = transform_nested_fields_for_raw_korona_transfer_rates(api_data)
         return data
     return transform_dict
 
 
-def load(table: str):
+def load(table: str, sending_flag: bool = True):
     def load_data(**context) -> None:
         """
         Функция, которая забирает dict из xcom, сформированный ранее. Из этого значения формирует INSERT query
@@ -84,7 +83,10 @@ def load(table: str):
         """
         ti = context.get("ti")
         if table == "currencies":
-            row = ti.xcom_pull("transform_curr")
+            if sending_flag:
+                row = ti.xcom_pull("transform_sending_curr")
+            else:
+                row = ti.xcom_pull("transform_receiving_curr")
             save_dict_to_postgres(
                 conn_id="my_dwh",
                 schema="md",
@@ -105,7 +107,7 @@ def load(table: str):
     return load_data
 
 
-with (DAG(
+with DAG(
     dag_id=DAG_ID,
     description=SHORT_DESCRIPTION,
     schedule_interval="0 * * * *",
@@ -115,7 +117,7 @@ with (DAG(
     tags=TAGS,
     max_active_runs=1,
     max_active_tasks=1,
-) as dag):
+) as dag:
 
     start_task = EmptyOperator(
         task_id="start",
@@ -127,9 +129,14 @@ with (DAG(
         python_callable=extract,
     )
 
-    transform_curr_task = PythonOperator(
-        task_id="transform_curr",
-        python_callable=transform("currencies"),
+    transform_sending_curr_task = PythonOperator(
+        task_id="transform_sending_curr",
+        python_callable=transform("currencies", True),
+    )
+
+    transform_receiving_curr_task = PythonOperator(
+        task_id="transform_receiving_curr",
+        python_callable=transform("currencies", False),
     )
 
     transform_rate_task = PythonOperator(
@@ -137,9 +144,14 @@ with (DAG(
         python_callable=transform("rates"),
     )
 
-    load_curr_task = PythonOperator(
-        task_id="load_curr",
-        python_callable=load("currencies"),
+    load_sending_curr_task = PythonOperator(
+        task_id="load_sending_curr",
+        python_callable=load("currencies", True),
+    )
+
+    load_receiving_curr_task = PythonOperator(
+        task_id="load_receiving_curr",
+        python_callable=load("currencies", False),
     )
 
     load_rate_task = PythonOperator(
@@ -153,5 +165,6 @@ with (DAG(
     )
 
     start_task >> extract_task
-    extract_task >> transform_curr_task >> load_curr_task >> end_task
+    extract_task >> transform_sending_curr_task >> load_sending_curr_task >> end_task
+    extract_task >> transform_receiving_curr_task >> load_receiving_curr_task >> end_task
     extract_task >> transform_rate_task >> load_rate_task >> end_task
