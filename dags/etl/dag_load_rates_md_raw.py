@@ -59,7 +59,7 @@ def transform(table: str, sending_flag: bool = True):
         Функция, которая забирает dict из xcom, сформированный ранее. И формирует новый xcom, который содержит
         dict с нужными полями и значениями для загрузки.
 
-        :param context: context выполнения таски extract
+        :param context: Context выполнения таски extract
         :return: Dict - строка для записи
         """
         ti = context.get("ti")
