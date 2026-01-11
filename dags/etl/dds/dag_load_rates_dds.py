@@ -64,7 +64,9 @@ def load_rates_to_dds(**context):
            AND o.receiving_currency_id = d.receiving_currency_id
            AND d.ts_to = TIMESTAMP '9999-12-31'
         WHERE d.rate_sk IS NULL -- либо курс отличается, если нужно
-           OR d.exchange_rate IS DISTINCT FROM o.exchange_rate;
+           OR d.exchange_rate IS DISTINCT FROM o.exchange_rate
+        ON CONFLICT DO NOTHING   
+        ;
     """
     try:
         with pg_hook.get_conn() as conn:
